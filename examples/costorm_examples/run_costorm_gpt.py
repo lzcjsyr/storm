@@ -4,9 +4,6 @@
 Co-STORM pipeline powered by GPT-4o/4o-mini and Bing search engine.
 You need to set up the following environment variables to run this script:
     - OPENAI_API_KEY: OpenAI API key
-    - OPENAI_API_TYPE: OpenAI API type (e.g., 'openai' or 'azure')
-    - AZURE_API_BASE: Azure API base URL if using Azure API
-    - AZURE_API_VERSION: Azure API version if using Azure API
     - BING_SEARCH_API_KEY: Biang search API key; BING_SEARCH_API_KEY: Bing Search API key, SERPER_API_KEY: Serper API key, BRAVE_API_KEY: Brave API key, or TAVILY_API_KEY: Tavily API key
 
 Output will be structured as below
@@ -26,7 +23,7 @@ from knowledge_storm.collaborative_storm.engine import (
 from knowledge_storm.collaborative_storm.modules.callback import (
     LocalConsolePrintCallBackHandler,
 )
-from knowledge_storm.lm import OpenAIModel, AzureOpenAIModel
+from knowledge_storm.lm import OpenAIModel
 from knowledge_storm.logging_wrapper import LoggingWrapper
 from knowledge_storm.rm import (
     YouRM,
@@ -43,34 +40,16 @@ from knowledge_storm.utils import load_api_key
 def main(args):
     load_api_key(toml_file_path="secrets.toml")
     lm_config: CollaborativeStormLMConfigs = CollaborativeStormLMConfigs()
-    openai_kwargs = (
-        {
-            "api_key": os.getenv("OPENAI_API_KEY"),
-            "api_provider": "openai",
-            "temperature": 1.0,
-            "top_p": 0.9,
-            "api_base": None,
-        }
-        if os.getenv("OPENAI_API_TYPE") == "openai"
-        else {
-            "api_key": os.getenv("AZURE_API_KEY"),
-            "temperature": 1.0,
-            "top_p": 0.9,
-            "api_base": os.getenv("AZURE_API_BASE"),
-            "api_version": os.getenv("AZURE_API_VERSION"),
-        }
-    )
+    openai_kwargs = {
+        "api_key": os.getenv("OPENAI_API_KEY"),
+        "api_provider": "openai",
+        "temperature": 1.0,
+        "top_p": 0.9,
+        "api_base": None,
+    }
 
-    ModelClass = (
-        OpenAIModel if os.getenv("OPENAI_API_TYPE") == "openai" else AzureOpenAIModel
-    )
-    # If you are using Azure service, make sure the model name matches your own deployed model name.
-    # The default name here is only used for demonstration and may not match your case.
-    gpt_4o_mini_model_name = "gpt-4o-mini"
+    ModelClass = OpenAIModel
     gpt_4o_model_name = "gpt-4o"
-    if os.getenv("OPENAI_API_TYPE") == "azure":
-        openai_kwargs["api_base"] = os.getenv("AZURE_API_BASE")
-        openai_kwargs["api_version"] = os.getenv("AZURE_API_VERSION")
 
     # STORM is a LM system so different components can be powered by different models.
     # For a good balance between cost and quality, you can choose a cheaper/faster model for conv_simulator_lm

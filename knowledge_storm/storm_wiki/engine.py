@@ -4,7 +4,7 @@ import json
 import logging
 import os
 from dataclasses import dataclass, field
-from typing import Union, Literal, Optional
+from typing import Union, Optional
 
 import dspy
 
@@ -40,75 +40,31 @@ class STORMWikiLMConfigs(LMConfigs):
     def init_openai_model(
         self,
         openai_api_key: str,
-        azure_api_key: str,
-        openai_type: Literal["openai", "azure"],
-        api_base: Optional[str] = None,
-        api_version: Optional[str] = None,
         temperature: Optional[float] = 1.0,
         top_p: Optional[float] = 0.9,
     ):
         """Legacy: Corresponding to the original setup in the NAACL'24 paper."""
-        azure_kwargs = {
-            "api_key": azure_api_key,
-            "temperature": temperature,
-            "top_p": top_p,
-            "api_base": api_base,
-            "api_version": api_version,
-        }
-
         openai_kwargs = {
             "api_key": openai_api_key,
             "temperature": temperature,
             "top_p": top_p,
             "api_base": None,
         }
-        if openai_type and openai_type == "openai":
-            self.conv_simulator_lm = LitellmModel(
-                model="gpt-4o-mini-2024-07-18", max_tokens=500, **openai_kwargs
-            )
-            self.question_asker_lm = LitellmModel(
-                model="gpt-4o-mini-2024-07-18", max_tokens=500, **openai_kwargs
-            )
-            # 1/12/2024: Update gpt-4 to gpt-4-1106-preview. (Currently keep the original setup when using azure.)
-            self.outline_gen_lm = LitellmModel(
-                model="gpt-4-0125-preview", max_tokens=400, **openai_kwargs
-            )
-            self.article_gen_lm = LitellmModel(
-                model="gpt-4o-2024-05-13", max_tokens=700, **openai_kwargs
-            )
-            self.article_polish_lm = LitellmModel(
-                model="gpt-4o-2024-05-13", max_tokens=4000, **openai_kwargs
-            )
-        elif openai_type and openai_type == "azure":
-            self.conv_simulator_lm = LitellmModel(
-                model="azure/gpt-4o-mini-2024-07-18", max_tokens=500, **openai_kwargs
-            )
-            self.question_asker_lm = LitellmModel(
-                model="azure/gpt-4o-mini-2024-07-18",
-                max_tokens=500,
-                **azure_kwargs,
-                model_type="chat",
-            )
-            # use combination of openai and azure-openai as azure-openai does not support gpt-4 in standard deployment
-            self.outline_gen_lm = LitellmModel(
-                model="azure/gpt-4o", max_tokens=400, **azure_kwargs, model_type="chat"
-            )
-            self.article_gen_lm = LitellmModel(
-                model="azure/gpt-4o-mini-2024-07-18",
-                max_tokens=700,
-                **azure_kwargs,
-                model_type="chat",
-            )
-            self.article_polish_lm = LitellmModel(
-                model="azure/gpt-4o-mini-2024-07-18",
-                max_tokens=4000,
-                **azure_kwargs,
-                model_type="chat",
-            )
-        else:
-            logging.warning(
-                "No valid OpenAI API provider is provided. Cannot use default LLM configurations."
-            )
+        self.conv_simulator_lm = LitellmModel(
+            model="gpt-4o-mini-2024-07-18", max_tokens=500, **openai_kwargs
+        )
+        self.question_asker_lm = LitellmModel(
+            model="gpt-4o-mini-2024-07-18", max_tokens=500, **openai_kwargs
+        )
+        self.outline_gen_lm = LitellmModel(
+            model="gpt-4-0125-preview", max_tokens=400, **openai_kwargs
+        )
+        self.article_gen_lm = LitellmModel(
+            model="gpt-4o-2024-05-13", max_tokens=700, **openai_kwargs
+        )
+        self.article_polish_lm = LitellmModel(
+            model="gpt-4o-2024-05-13", max_tokens=4000, **openai_kwargs
+        )
 
     def set_conv_simulator_lm(self, model: Union[dspy.dsp.LM, dspy.dsp.HFModel]):
         self.conv_simulator_lm = model

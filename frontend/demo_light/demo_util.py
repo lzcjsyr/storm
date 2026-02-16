@@ -584,7 +584,7 @@ def set_storm_runner():
     # configure STORM runner
     llm_configs = STORMWikiLMConfigs()
     llm_configs.init_openai_model(
-        openai_api_key=st.secrets["OPENAI_API_KEY"], openai_type="openai"
+        openai_api_key=st.secrets["OPENAI_API_KEY"]
     )
     llm_configs.set_question_asker_lm(
         OpenAIModel(

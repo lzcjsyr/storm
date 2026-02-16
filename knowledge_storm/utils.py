@@ -715,7 +715,7 @@ class WebPageHelper:
 
 def user_input_appropriateness_check(user_input):
     my_openai_model = LitellmModel(
-        model="azure/gpt-4o-mini",
+        model="openai/gpt-4o-mini",
         max_tokens=10,
         temperature=0.0,
         top_p=0.9,
@@ -770,7 +770,7 @@ User input: {user_input}"""
 
 def purpose_appropriateness_check(user_input):
     my_openai_model = LitellmModel(
-        model="azure/gpt-4o-mini",
+        model="openai/gpt-4o-mini",
         max_tokens=10,
         temperature=0.0,
         top_p=0.9,

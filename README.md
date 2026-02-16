@@ -227,12 +227,6 @@ We suggest using `secrets.toml` to set up the API keys. Create a file `secrets.t
 # ============ language model configurations ============ 
 # Set up OpenAI API key.
 OPENAI_API_KEY="your_openai_api_key"
-# If you are using the API service provided by OpenAI, include the following line:
-OPENAI_API_TYPE="openai"
-# If you are using the API service provided by Microsoft Azure, include the following lines:
-OPENAI_API_TYPE="azure"
-AZURE_API_BASE="your_azure_api_base_url"
-AZURE_API_VERSION="your_azure_api_version"
 # ============ retriever configurations ============ 
 BING_SEARCH_API_KEY="your_bing_search_api_key" # if using bing search
 # ============ encoder configurations ============ 

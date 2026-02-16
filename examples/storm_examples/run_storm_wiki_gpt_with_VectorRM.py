@@ -4,7 +4,6 @@
 This STORM Wiki pipeline powered by GPT-3.5/4 and local retrieval model that uses Qdrant.
 You need to set up the following environment variables to run this script:
     - OPENAI_API_KEY: OpenAI API key
-    - OPENAI_API_TYPE: OpenAI API type (e.g., 'openai' or 'azure')
     - QDRANT_API_KEY: Qdrant API key (needed ONLY if online vector store was used)
 
 You will also need an existing Qdrant vector store either saved in a folder locally offline or in a server online.
@@ -37,7 +36,7 @@ from knowledge_storm import (
     STORMWikiLMConfigs,
 )
 from knowledge_storm.rm import VectorRM
-from knowledge_storm.lm import OpenAIModel, AzureOpenAIModel
+from knowledge_storm.lm import OpenAIModel
 from knowledge_storm.utils import load_api_key, QdrantVectorStoreManager
 
 
@@ -53,18 +52,9 @@ def main(args):
         "top_p": 0.9,
     }
 
-    ModelClass = (
-        OpenAIModel if os.getenv("OPENAI_API_TYPE") == "openai" else AzureOpenAIModel
-    )
-    # If you are using Azure service, make sure the model name matches your own deployed model name.
-    # The default name here is only used for demonstration and may not match your case.
-    gpt_35_model_name = (
-        "gpt-3.5-turbo" if os.getenv("OPENAI_API_TYPE") == "openai" else "gpt-35-turbo"
-    )
+    ModelClass = OpenAIModel
+    gpt_35_model_name = "gpt-3.5-turbo"
     gpt_4_model_name = "gpt-4o"
-    if os.getenv("OPENAI_API_TYPE") == "azure":
-        openai_kwargs["api_base"] = os.getenv("AZURE_API_BASE")
-        openai_kwargs["api_version"] = os.getenv("AZURE_API_VERSION")
 
     # STORM is a LM system so different components can be powered by different models.
     # For a good balance between cost and quality, you can choose a cheaper/faster model for conv_simulator_lm

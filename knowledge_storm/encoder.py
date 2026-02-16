@@ -41,12 +41,12 @@ class Encoder:
     generation tasks efficiently. It supports parallel processing and local caching of
     embedding results for improved performance.
 
-    The Encoder utilizes the LiteLLM library to interact with various embedding models,
-    such as OpenAI and Azure embeddings. Users can specify the desired encoder type and
+    The Encoder utilizes the LiteLLM library to interact with embedding models.
+    Users can specify the desired encoder type and
     provide relevant API credentials during initialization.
 
     Features:
-        - Support for multiple embedding models (e.g., OpenAI, Azure).
+        - Support for OpenAI-compatible embedding models.
         - Parallel processing for faster embedding generation.
         - Local disk caching to store and reuse embedding results.
         - Total token usage tracking for cost monitoring.
@@ -60,40 +60,27 @@ class Encoder:
         self,
         encoder_type: Optional[str] = None,
         api_key: Optional[str] = None,
-        api_base: Optional[str] = None,
-        api_version: Optional[str] = None,
     ):
         """
         Initializes the Encoder with the appropriate embedding model.
 
         Args:
-            encoder_type (Optional[str]): Type of encoder ('openai', 'azure', etc.).
+            encoder_type (Optional[str]): Type of encoder ('openai').
             api_key (Optional[str]): API key for the encoder service.
-            api_base (Optional[str]): API base URL for the encoder service.
-            api_version (Optional[str]): API version for the encoder service.
         """
         self.embedding_model_name = None
         self.kargs = {}
         self.total_token_usage = 0
 
         # Initialize the appropriate embedding model
-        encoder_type = encoder_type or os.getenv("ENCODER_API_TYPE")
-        if not encoder_type:
-            raise ValueError("ENCODER_API_TYPE environment variable is not set.")
+        encoder_type = encoder_type or os.getenv("ENCODER_API_TYPE", "openai")
 
         if encoder_type.lower() == "openai":
             self.embedding_model_name = "text-embedding-3-small"
             self.kargs = {"api_key": api_key or os.getenv("OPENAI_API_KEY")}
-        elif encoder_type.lower() == "azure":
-            self.embedding_model_name = "azure/text-embedding-3-small"
-            self.kargs = {
-                "api_key": api_key or os.getenv("AZURE_API_KEY"),
-                "api_base": api_base or os.getenv("AZURE_API_BASE"),
-                "api_version": api_version or os.getenv("AZURE_API_VERSION"),
-            }
         else:
             raise ValueError(
-                f"Unsupported ENCODER_API_TYPE '{encoder_type}'. Supported types are 'openai', 'azure', 'together'."
+                f"Unsupported ENCODER_API_TYPE '{encoder_type}'. Supported type is 'openai'."
             )
 
     def get_total_token_usage(self, reset: bool = False) -> int:

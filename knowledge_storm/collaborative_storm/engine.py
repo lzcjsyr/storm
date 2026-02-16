@@ -41,7 +41,7 @@ class CollaborativeStormLMConfigs(LMConfigs):
 
     def init(
         self,
-        lm_type: Literal["openai", "azure", "together"],
+        lm_type: Literal["openai", "together"],
         temperature: Optional[float] = 1.0,
         top_p: Optional[float] = 0.9,
     ):
@@ -69,32 +69,6 @@ class CollaborativeStormLMConfigs(LMConfigs):
             )
             self.knowledge_base_lm = LitellmModel(
                 model="gpt-4o-2024-05-13", max_tokens=1000, **openai_kwargs
-            )
-        elif lm_type and lm_type == "azure":
-            azure_kwargs = {
-                "api_key": os.getenv("AZURE_API_KEY"),
-                "temperature": temperature,
-                "top_p": top_p,
-                "api_base": os.getenv("AZURE_API_BASE"),
-                "api_version": os.getenv("AZURE_API_VERSION"),
-            }
-            self.question_answering_lm = LitellmModel(
-                model="azure/gpt-4o", max_tokens=1000, **azure_kwargs, model_type="chat"
-            )
-            self.discourse_manage_lm = LitellmModel(
-                model="azure/gpt-4o", max_tokens=500, **azure_kwargs, model_type="chat"
-            )
-            self.utterance_polishing_lm = LitellmModel(
-                model="azure/gpt-4o", max_tokens=2000, **azure_kwargs, model_type="chat"
-            )
-            self.warmstart_outline_gen_lm = LitellmModel(
-                model="azure/gpt-4o", max_tokens=300, **azure_kwargs, model_type="chat"
-            )
-            self.question_asking_lm = LitellmModel(
-                model="azure/gpt-4o", max_tokens=300, **azure_kwargs, model_type="chat"
-            )
-            self.knowledge_base_lm = LitellmModel(
-                model="azure/gpt-4o", max_tokens=1000, **azure_kwargs, model_type="chat"
             )
         elif lm_type and lm_type == "together":
             together_kwargs = {
@@ -140,7 +114,7 @@ class CollaborativeStormLMConfigs(LMConfigs):
             )
         else:
             raise Exception(
-                "No valid OpenAI API provider is provided. Cannot use default LLM configurations."
+                "No valid LM provider is provided. Supported values are 'openai' and 'together'."
             )
 
     def set_question_answering_lm(self, model: Union[dspy.dsp.LM, dspy.dsp.HFModel]):
@@ -557,7 +531,7 @@ class CoStormRunner:
     def from_dict(cls, data, callback_handler: BaseCallbackHandler = None):
         # FIXME: does not use the lm_config data but naively use default setting
         lm_config = CollaborativeStormLMConfigs()
-        lm_config.init(lm_type=os.getenv("OPENAI_API_TYPE"))
+        lm_config.init(lm_type=os.getenv("LM_TYPE", "openai"))
         costorm_runner = cls(
             lm_config=lm_config,
             runner_argument=RunnerArgument.from_dict(data["runner_argument"]),
