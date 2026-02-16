@@ -1,3 +1,5 @@
+# File role: Embedding encoder abstraction used for semantic similarity and clustering.
+# Relation: Co-STORM insertion and agent-selection logic uses this to place/route information in the knowledge tree.
 import os
 import numpy as np
 

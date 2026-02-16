@@ -1,3 +1,5 @@
+# File role: Language-model adapter layer (LiteLLM/OpenAI/Claude/Groq/Ollama/VLLM/etc.) with unified calling behavior.
+# Relation: Engines consume these model wrappers through LM config objects (STORMWikiLMConfigs, CollaborativeStormLMConfigs).
 import backoff
 import dspy
 import functools

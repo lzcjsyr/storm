@@ -1,3 +1,5 @@
+# File role: Retrieval helper logic for STORM conversation simulation and evidence formatting.
+# Relation: Bridges generic retriever outputs to STORM-ready source objects and filtering rules.
 from typing import Union, List
 from urllib.parse import urlparse
 

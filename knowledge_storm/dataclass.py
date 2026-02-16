@@ -1,3 +1,5 @@
+# File role: Runtime data structures for dialogue turns, knowledge nodes, and the hierarchical knowledge base.
+# Relation: Used heavily by Co-STORM agents/modules and report generation to track conversation state and citations.
 import dspy
 import numpy as np
 import re
@@ -204,6 +206,8 @@ class KnowledgeNode:
         return path[::-1]
 
     def insert_information(self, information_index: int):
+        # === [CRITICAL FLOW] Node Mutation ===
+        # Marks synthesized section text as stale whenever node content changes.
         if information_index not in self.content:
             self.need_regenerate_synthesize_output = True
             self.content.add(information_index)
@@ -684,6 +688,8 @@ class KnowledgeBase:
         missing_node_handling="abort",
         root: Optional[KnowledgeNode] = None,
     ):
+        # === [CRITICAL FLOW] KB Insertion Core ===
+        # Assigns stable citation UUIDs and writes information to the selected node path.
         """
         Inserts information into the knowledge base at the specified path.
 
@@ -787,6 +793,8 @@ class KnowledgeBase:
         allow_create_new_node: bool = False,
         insert_under_root: bool = False,
     ):
+        # === [CRITICAL FLOW] Conversation -> Mind Map Sync ===
+        # Inserts cited evidence from one turn, remaps citations, and normalizes utterance references.
         if conv_turn is None:
             return
         info_to_insert = list(conv_turn.cited_info.values())
@@ -826,6 +834,8 @@ class KnowledgeBase:
         return self.gen_summary_module(self)
 
     def reorganize(self):
+        # === [CRITICAL FLOW] Mind-Map Reorganization ===
+        # Performs cleanup + expansion cycles to keep the hierarchy compact and navigable.
         """
         Reorganizes the knowledge base through two main processes: top-down expansion and bottom-up cleaning.
 
@@ -846,4 +856,6 @@ class KnowledgeBase:
         self.update_all_info_path()
 
     def to_report(self):
+        # === [CRITICAL FLOW] Mind Map -> Report ===
+        # Delegates final section-by-section synthesis to the article generation module.
         return self.article_generation_module(knowledge_base=self)

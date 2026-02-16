@@ -1,3 +1,5 @@
+# File role: Utility helpers for citation parsing, snippet formatting, text cleanup, and module factories.
+# Relation: Shared support layer imported by most Co-STORM modules and agents.
 import dspy
 import os
 import re

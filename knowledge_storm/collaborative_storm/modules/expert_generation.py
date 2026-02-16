@@ -1,3 +1,5 @@
+# File role: Generates initial expert roster/roles for a topic.
+# Relation: Warm-start and discourse setup use this to define participant perspectives.
 import dspy
 import re
 from typing import Union

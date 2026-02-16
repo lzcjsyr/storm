@@ -1,3 +1,5 @@
+# File role: Data preparation helper for building local vector retrieval corpora from Kaggle ArXiv abstracts.
+# Relation: Supports VectorRM-based STORM examples by creating retriever-ready documents.
 """Process `arxiv_data_210930-054931.csv` 
 from https://www.kaggle.com/datasets/spsayakpaul/arxiv-paper-abstracts
 to a csv file that is compatible with VectorRM.

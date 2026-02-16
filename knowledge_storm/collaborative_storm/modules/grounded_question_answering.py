@@ -1,3 +1,5 @@
+# File role: Grounded QA module that retrieves evidence and synthesizes cited answers.
+# Relation: Shared dependency for experts/moderator/user simulation during collaborative turns.
 import dspy
 from typing import Union, List
 
@@ -64,6 +66,8 @@ class AnswerQuestionModule(dspy.Module):
         self.logging_wrapper = logging_wrapper
 
     def retrieve_information(self, topic, question):
+        # === [CRITICAL FLOW] Grounded QA Retrieval ===
+        # Decomposes a question into queries, retrieves web evidence, and stamps source metadata.
         # decompose question to queries
         with self.logging_wrapper.log_event(
             f"AnswerQuestionModule.question_to_query ({hash(question)})"
@@ -97,6 +101,8 @@ class AnswerQuestionModule(dspy.Module):
         style: str = "conversational",
         callback_handler: BaseCallbackHandler = None,
     ):
+        # === [CRITICAL FLOW] Grounded QA Synthesis ===
+        # Builds cited answer text from retrieved evidence and returns cited-source mapping.
         """
         Processes a topic and question to generate a response with relevant information and citations.
 

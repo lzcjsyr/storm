@@ -1,3 +1,5 @@
+# File role: STORM Wiki runnable example for a specific model/retriever provider.
+# Relation: Each script follows the same orchestration pattern: LM configs + retriever + STORMWikiRunner.run().
 import os
 from argparse import ArgumentParser
 

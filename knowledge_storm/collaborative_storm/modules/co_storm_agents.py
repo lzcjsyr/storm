@@ -1,3 +1,5 @@
+# File role: Agent implementations (experts, moderator, simulated user, pure RAG agent).
+# Relation: Instantiated by Co-STORM engine and backed by utterance/QA/question modules.
 import dspy
 from itertools import zip_longest
 import numpy as np
@@ -80,6 +82,8 @@ class CoStormExpert(Agent):
         knowledge_base: KnowledgeBase,
         conversation_history: List[ConversationTurn],
     ):
+        # === [CRITICAL FLOW] Expert Turn Generation ===
+        # Uses KB summary + latest turn to plan, ground, and polish expert utterances.
         with self.logging_wrapper.log_event(
             "CoStormExpert generate utternace: get knowledge base summary"
         ):
@@ -287,6 +291,8 @@ class Moderator(Agent):
         knowledge_base: KnowledgeBase,
         conversation_history: List[ConversationTurn],
     ):
+        # === [CRITICAL FLOW] Moderator Intervention ===
+        # Selects unused high-value snippets and converts them into steering questions.
         with self.logging_wrapper.log_event(
             "Moderator generate utternace: get unused snippets"
         ):
@@ -367,6 +373,8 @@ class PureRAGAgent(Agent):
         knowledge_base: KnowledgeBase,
         conversation_history: List[ConversationTurn],
     ):
+        # === [CRITICAL FLOW] Pure RAG Baseline Turn ===
+        # Answers only from retrieval grounded on the latest question (no discourse planning).
         with self.logging_wrapper.log_event(
             "PureRAGAgent generate utternace: generate utterance"
         ):

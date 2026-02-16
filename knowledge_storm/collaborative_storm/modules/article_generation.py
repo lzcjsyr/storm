@@ -1,3 +1,5 @@
+# File role: Report/article generation from Co-STORM knowledge-base nodes.
+# Relation: Final synthesis stage after discourse; turns structured mind-map evidence into section text.
 import dspy
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Set, Union

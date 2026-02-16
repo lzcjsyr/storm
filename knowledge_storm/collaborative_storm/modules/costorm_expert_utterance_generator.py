@@ -1,3 +1,5 @@
+# File role: Expert speaking pipeline (action planning to grounding to style polishing).
+# Relation: Used by CoStormExpert to produce contextual, citation-aware utterances per turn.
 import dspy
 from typing import Union
 

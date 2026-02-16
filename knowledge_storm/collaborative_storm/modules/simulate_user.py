@@ -1,3 +1,5 @@
+# File role: Simulated user utterance generation for autonomous collaboration experiments.
+# Relation: Optional participant used by discourse manager when no human utterance is injected.
 import dspy
 from typing import List, Union
 

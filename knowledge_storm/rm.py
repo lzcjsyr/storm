@@ -1,3 +1,5 @@
+# File role: Retrieval/search adapter layer (You/Bing/Serper/Brave/Tavily/SearXNG/VectorRM/AzureAI).
+# Relation: Passed into curation and QA modules so generation stays grounded in external evidence.
 import logging
 import os
 from typing import Callable, Union, List

@@ -1,3 +1,5 @@
+# File role: Inserts new evidence into the hierarchical knowledge base with LM + embedding guidance.
+# Relation: Keeps the shared mind-map updated as conversation produces additional grounded information.
 import dspy
 import numpy as np
 import re
@@ -227,6 +229,8 @@ class InsertInformationModule(dspy.Module):
         insert_root: Optional[KnowledgeNode] = None,
         skip_candidate_from_embedding: bool = False,
     ):
+        # === [CRITICAL FLOW] Information Placement Engine ===
+        # Chooses insertion paths (embedding candidates + LM navigation) and writes evidence into the KB.
         if not isinstance(information, List):
             information = [information]
         intent_to_placement_dict: Dict = self._info_list_to_intent_mapping(
@@ -413,6 +417,8 @@ class ExpandNodeModule(dspy.Module):
         )
 
     def forward(self, knowledge_base: KnowledgeBase):
+        # === [CRITICAL FLOW] KB Node Expansion ===
+        # Iteratively expands overloaded nodes and reinserts their evidence into finer-grained subnodes.
         expanded_nodes = []
         while True:
             node_to_expand = self._find_first_node_to_expand(

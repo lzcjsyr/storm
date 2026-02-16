@@ -1,3 +1,5 @@
+# File role: STORM Wiki runnable example for a specific model/retriever provider.
+# Relation: Each script follows the same orchestration pattern: LM configs + retriever + STORMWikiRunner.run().
 """
 STORM Wiki pipeline powered by GPT-3.5/4 and You.com search engine.
 You need to set up the following environment variables to run this script:

@@ -1,3 +1,5 @@
+# File role: Final article polishing (lead synthesis, cleanup, de-duplication).
+# Relation: Optional post-processing stage run after draft generation in STORMWikiRunner.
 import copy
 from typing import Union
 

@@ -1,3 +1,5 @@
+# File role: Main orchestrator for the STORM two-stage pipeline (research/outline/article/polish).
+# Relation: Wires LM configs + retriever + storm_wiki modules into the STORMWikiRunner execution flow.
 import json
 import logging
 import os
@@ -213,6 +215,8 @@ class STORMWikiRunner(Engine):
         ground_truth_url: str = "None",
         callback_handler: BaseCallbackHandler = None,
     ) -> StormInformationTable:
+        # === [CRITICAL FLOW] STORM Stage 1 ===
+        # Runs conversational research and persists raw conversation/search artifacts.
         (
             information_table,
             conversation_log,
@@ -239,6 +243,8 @@ class STORMWikiRunner(Engine):
         information_table: StormInformationTable,
         callback_handler: BaseCallbackHandler = None,
     ) -> StormArticle:
+        # === [CRITICAL FLOW] STORM Stage 2 ===
+        # Builds draft + refined outlines from curated evidence.
         outline, draft_outline = self.storm_outline_generation_module.generate_outline(
             topic=self.topic,
             information_table=information_table,
@@ -259,6 +265,8 @@ class STORMWikiRunner(Engine):
         information_table=StormInformationTable,
         callback_handler: BaseCallbackHandler = None,
     ) -> StormArticle:
+        # === [CRITICAL FLOW] STORM Stage 3 ===
+        # Generates section content with citations using outline + information table.
         draft_article = self.storm_article_generation.generate_article(
             topic=self.topic,
             information_table=information_table,
@@ -276,6 +284,8 @@ class STORMWikiRunner(Engine):
     def run_article_polishing_module(
         self, draft_article: StormArticle, remove_duplicate: bool = False
     ) -> StormArticle:
+        # === [CRITICAL FLOW] STORM Stage 4 ===
+        # Optional post-processing pass to improve readability and remove redundancy.
         polished_article = self.storm_article_polishing_module.polish_article(
             topic=self.topic,
             draft_article=draft_article,
@@ -288,6 +298,8 @@ class STORMWikiRunner(Engine):
         return polished_article
 
     def post_run(self):
+        # === [CRITICAL FLOW] Run Finalization ===
+        # Persists run configuration and LM call traces for reproducibility/debugging.
         """
         Post-run operations, including:
         1. Dumping the run configuration.
@@ -349,6 +361,8 @@ class STORMWikiRunner(Engine):
         remove_duplicate: bool = False,
         callback_handler: BaseCallbackHandler = BaseCallbackHandler(),
     ):
+        # === [CRITICAL FLOW] STORM Pipeline Entrypoint ===
+        # Coordinates all stages and supports resume-from-artifacts when stages are skipped.
         """
         Run the STORM pipeline.
 

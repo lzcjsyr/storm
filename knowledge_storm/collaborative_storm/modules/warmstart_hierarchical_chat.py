@@ -1,3 +1,5 @@
+# File role: Warm-start workflow to bootstrap shared context before live collaboration.
+# Relation: Runs mini-STORM style exploration, builds initial knowledge tree, and drafts kickoff conversation.
 """
 Warm starts the Co-STORM system by conducting a background information search to establish a shared conceptual space with the user.
  
@@ -344,6 +346,8 @@ class WarmStartModule:
         self.callback_handler = callback_handler
 
     def initiate_warm_start(self, topic: str, knowledge_base: KnowledgeBase):
+        # === [CRITICAL FLOW] WarmStart Pipeline ===
+        # Executes mini-STORM: perspective QA -> outline -> KB insertion -> report-to-conversation conversion.
         """
         Initiates a warm start process for the given topic by generating a warm start conversation and inserting the
         resulting information into a knowledge base.

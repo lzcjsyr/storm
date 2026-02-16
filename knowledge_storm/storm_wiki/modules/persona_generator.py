@@ -1,3 +1,5 @@
+# File role: Perspective/persona discovery for multi-angle question asking in pre-writing.
+# Relation: Feeds knowledge curation with writer personas that diversify simulated interview questions.
 import logging
 import re
 from typing import Union, List

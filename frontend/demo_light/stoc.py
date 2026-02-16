@@ -1,3 +1,5 @@
+# File role: Table-of-contents helper adapted for Streamlit markdown pages.
+# Relation: Used by demo rendering utilities to provide sidebar navigation within generated articles.
 """https://github.com/arnaudmiribel/stoc"""
 
 import re

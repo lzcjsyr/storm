@@ -1,3 +1,5 @@
+# File role: Streamlit app entrypoint for the lightweight STORM demo UI.
+# Relation: Routes between article listing and creation pages while managing top-level session state.
 import os
 
 script_dir = os.path.dirname(os.path.abspath(__file__))

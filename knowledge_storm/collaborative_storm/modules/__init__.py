@@ -1,3 +1,5 @@
+# File role: Module barrel for Co-STORM building blocks.
+# Relation: Groups expert generation, QA, insertion, warm start, and report modules used by the engine.
 from .article_generation import *
 from .grounded_question_answering import *
 from .grounded_question_generation import *

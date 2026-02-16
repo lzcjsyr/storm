@@ -1,3 +1,5 @@
+# File role: Generates grounded follow-up questions based on conversation and unused evidence.
+# Relation: Supports moderator/expert prompts to keep discourse exploratory and evidence-driven.
 """
 This module handles question generation within the Co-STORM framework, specifically designed to support the Moderator role.
 

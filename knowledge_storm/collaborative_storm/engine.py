@@ -1,3 +1,5 @@
+# File role: Core Co-STORM runner and discourse manager.
+# Relation: Coordinates warm start, turn policy, multi-agent speaking order, and report generation.
 import dspy
 import os
 from dataclasses import dataclass, field, asdict
@@ -580,6 +582,8 @@ class CoStormRunner:
         return costorm_runner
 
     def warm_start(self):
+        # === [CRITICAL FLOW] Co-STORM Warm Start Entrypoint ===
+        # Bootstraps initial experts, conversation context, and the first knowledge-base structure.
         """
         Warm start co-storm system to conduct background information search in order to build shared conceptual space with user.
         This stage is a mini-STORM, spawning multiple LLM agent with different perspective and perform multi-round conversation.
@@ -640,6 +644,8 @@ class CoStormRunner:
                 )
 
     def generate_report(self) -> str:
+        # === [CRITICAL FLOW] Co-STORM Report Synthesis ===
+        # Converts the reorganized mind-map into a citation-preserving report.
         """
         Generate report leveraging organized collected information in the knowledge base (i.e. mind map).
         The article generation follows the paradigm in STORM paper, where it considers mind map nodes as section names, and generate the report section by section.
@@ -664,6 +670,8 @@ class CoStormRunner:
         simulate_user: bool = False,
         simulate_user_intent: str = "",
     ) -> ConversationTurn:
+        # === [CRITICAL FLOW] Co-STORM Turn Loop ===
+        # One turn of discourse policy -> utterance generation -> knowledge-base update -> optional reorganization.
         """
         Yields a single turn in the conversation flow.
 

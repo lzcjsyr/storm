@@ -1,3 +1,5 @@
+# File role: Summarizes current knowledge-base structure into compact discussion memory.
+# Relation: Used to condition downstream agent turns and maintain context during long conversations.
 import dspy
 from typing import Union
 from ...dataclass import KnowledgeBase

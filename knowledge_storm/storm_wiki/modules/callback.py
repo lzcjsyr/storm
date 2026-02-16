@@ -1,3 +1,5 @@
+# File role: Callback interface/hooks for STORM Wiki execution updates.
+# Relation: Demo UI and external callers implement this to stream progress/status during runs.
 class BaseCallbackHandler:
     """Base callback handler that can be used to handle callbacks from the STORM pipeline."""
 

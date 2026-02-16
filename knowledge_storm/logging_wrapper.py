@@ -1,3 +1,5 @@
+# File role: Structured timing/event logging wrapper for module-level observability.
+# Relation: Co-STORM modules and agents use it to trace pipeline steps and debug behavior.
 from contextlib import contextmanager
 import time
 import pytz

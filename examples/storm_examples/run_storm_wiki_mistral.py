@@ -1,3 +1,5 @@
+# File role: STORM Wiki runnable example for a specific model/retriever provider.
+# Relation: Each script follows the same orchestration pattern: LM configs + retriever + STORMWikiRunner.run().
 """
 STORM Wiki pipeline powered by Mistral-7B-Instruct-v0.2 hosted by VLLM server and You.com search engine.
 You need to set up the following environment variables to run this script:

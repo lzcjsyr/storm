@@ -1,3 +1,5 @@
+# File role: Shared demo-layer helpers (I/O, markdown/citation rendering, UI fragments, runner setup).
+# Relation: Central utility module consumed by Streamlit pages to invoke STORM and display artifacts.
 import base64
 import datetime
 import json

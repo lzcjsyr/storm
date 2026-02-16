@@ -1,3 +1,5 @@
+# File role: Callback contract and local console callback for Co-STORM lifecycle events.
+# Relation: Engine and modules emit progress through this interface for observability or UI integration.
 from typing import List
 from ...interface import Information
 

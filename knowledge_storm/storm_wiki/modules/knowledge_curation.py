@@ -1,3 +1,5 @@
+# File role: Simulated writer-expert conversation loop that gathers grounded evidence.
+# Relation: First major STORM stage; output powers outline generation and article synthesis.
 import concurrent.futures
 import logging
 import os
@@ -51,6 +53,8 @@ class ConvSimulator(dspy.Module):
         ground_truth_url: str,
         callback_handler: BaseCallbackHandler,
     ):
+        # === [CRITICAL FLOW] STORM Conversation Simulation ===
+        # Runs iterative writer-expert turns that collect grounded evidence for one persona.
         """
         topic: The topic to research.
         persona: The persona of the Wikipedia writer.
@@ -202,6 +206,8 @@ class TopicExpert(dspy.Module):
         self.search_top_k = search_top_k
 
     def forward(self, topic: str, question: str, ground_truth_url: str):
+        # === [CRITICAL FLOW] STORM Expert QA Turn ===
+        # Query decomposition -> retrieval -> citation-grounded answer generation.
         with dspy.settings.context(lm=self.engine, show_guidelines=False):
             # Identify: Break down question into queries.
             queries = self.generate_queries(topic=topic, question=question).queries
@@ -353,6 +359,8 @@ class StormKnowledgeCurationModule(KnowledgeCurationModule):
         disable_perspective: bool = True,
         return_conversation_log=False,
     ) -> Union[StormInformationTable, Tuple[StormInformationTable, Dict]]:
+        # === [CRITICAL FLOW] STORM Knowledge Curation Entrypoint ===
+        # Selects personas, executes parallel conversations, and aggregates final information table.
         """
         Curate information and knowledge for the given topic
 

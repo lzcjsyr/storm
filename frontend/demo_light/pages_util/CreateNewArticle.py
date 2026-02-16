@@ -1,3 +1,5 @@
+# File role: Streamlit page workflow for creating a new article (state machine across generation stages).
+# Relation: Calls demo utilities + STORM runner to execute pre-writing/final-writing and persist outputs.
 import os
 import time
 

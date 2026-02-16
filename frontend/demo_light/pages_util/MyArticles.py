@@ -1,3 +1,5 @@
+# File role: Streamlit page for browsing previously generated article artifacts.
+# Relation: Reads demo working directory via DemoFileIOHelper and renders selectable article cards/details.
 import os
 
 import demo_util

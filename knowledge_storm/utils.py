@@ -1,3 +1,5 @@
+# File role: Shared utility toolbox (file I/O helpers, text processing, vector store helpers, safety checks).
+# Relation: Imported across engines, modules, and demo UI for post-processing, persistence, and formatting.
 import concurrent.futures
 import dspy
 import httpx

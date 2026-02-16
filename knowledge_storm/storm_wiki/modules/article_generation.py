@@ -1,3 +1,5 @@
+# File role: Section/article drafting from outline + cited evidence.
+# Relation: Converts curated references into long-form draft text that keeps inline citations.
 import concurrent.futures
 import copy
 import logging

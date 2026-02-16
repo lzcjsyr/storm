@@ -1,3 +1,5 @@
+# File role: Core abstract contracts and shared primitives for the entire framework.
+# Relation: Both storm_wiki and collaborative_storm engines implement these interfaces (Engine, LMConfigs, Agent, InformationTable).
 import concurrent.futures
 import dspy
 import functools

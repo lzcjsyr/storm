@@ -1,3 +1,5 @@
+# File role: STORM-specific concrete data containers implementing shared interfaces.
+# Relation: Implements InformationTable/Article behavior expected by STORM curation and writing modules.
 import copy
 import re
 from collections import OrderedDict

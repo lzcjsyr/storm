@@ -1,3 +1,5 @@
+# File role: End-to-end Co-STORM example script using GPT-style models.
+# Relation: Demonstrates how to wire LM config, retriever, runner args, and iterative step loop.
 """
 Co-STORM pipeline powered by GPT-4o/4o-mini and Bing search engine.
 You need to set up the following environment variables to run this script:

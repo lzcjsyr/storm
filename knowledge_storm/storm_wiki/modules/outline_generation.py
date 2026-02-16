@@ -1,3 +1,5 @@
+# File role: Outline generation and refinement from collected conversation evidence.
+# Relation: Consumes curation artifacts and produces the structured section tree for article writing.
 from typing import Union, Optional, Tuple
 
 import dspy
