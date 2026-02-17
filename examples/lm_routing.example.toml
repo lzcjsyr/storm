@@ -1,0 +1,69 @@
+[defaults]
+temperature = 0.5
+top_p = 0.9
+
+[storm_wiki.conv_simulator_lm]
+url = "https://api.siliconflow.cn/v1"
+key = "SILICONFLOW_API_KEY"
+model = "Qwen/Qwen2.5-72B-Instruct"
+max_tokens = 500
+
+[storm_wiki.question_asker_lm]
+url = "https://api.moonshot.cn/v1"
+key = "KIMI_API_KEY"
+model = "moonshot-v1-8k"
+max_tokens = 500
+
+[storm_wiki.outline_gen_lm]
+url = "https://api.deepseek.com/v1"
+key = "DEEPSEEK_API_KEY"
+model = "deepseek-chat"
+max_tokens = 400
+
+[storm_wiki.article_gen_lm]
+url = "https://api.deepseek.com/v1"
+key = "DEEPSEEK_API_KEY"
+model = "deepseek-chat"
+max_tokens = 700
+
+[storm_wiki.article_polish_lm]
+url = "https://api.openai.com/v1"
+key = "OPENAI_API_KEY"
+model = "gpt-4o"
+max_tokens = 4000
+
+[co_storm.question_answering_lm]
+url = "https://api.deepseek.com/v1"
+key = "DEEPSEEK_API_KEY"
+model = "deepseek-chat"
+max_tokens = 1000
+
+[co_storm.discourse_manage_lm]
+url = "https://api.moonshot.cn/v1"
+key = "KIMI_API_KEY"
+model = "moonshot-v1-8k"
+max_tokens = 500
+
+[co_storm.utterance_polishing_lm]
+url = "https://api.deepseek.com/v1"
+key = "DEEPSEEK_API_KEY"
+model = "deepseek-chat"
+max_tokens = 2000
+
+[co_storm.warmstart_outline_gen_lm]
+url = "https://api.deepseek.com/v1"
+key = "DEEPSEEK_API_KEY"
+model = "deepseek-chat"
+max_tokens = 500
+
+[co_storm.question_asking_lm]
+url = "https://api.moonshot.cn/v1"
+key = "KIMI_API_KEY"
+model = "moonshot-v1-8k"
+max_tokens = 300
+
+[co_storm.knowledge_base_lm]
+url = "https://api.deepseek.com/v1"
+key = "DEEPSEEK_API_KEY"
+model = "deepseek-chat"
+max_tokens = 1000

@@ -20,6 +20,7 @@ from ..encoder import Encoder
 from ..interface import LMConfigs, Agent
 from ..logging_wrapper import LoggingWrapper
 from ..lm import LitellmModel
+from ..lm_routing import apply_lm_models_from_toml
 from ..rm import BingSearch
 
 
@@ -134,6 +135,14 @@ class CollaborativeStormLMConfigs(LMConfigs):
 
     def set_knowledge_base_lm(self, model: Union[dspy.dsp.LM, dspy.dsp.HFModel]):
         self.knowledge_base_lm = model
+
+    def init_from_toml(self, config_path: str, section: str = "co_storm"):
+        """Initialize Co-STORM LMs from an OpenAI-compatible routing TOML."""
+        apply_lm_models_from_toml(
+            config_obj=self,
+            config_path=config_path,
+            section=section,
+        )
 
     def collect_and_reset_lm_usage(self):
         lm_usage = {}

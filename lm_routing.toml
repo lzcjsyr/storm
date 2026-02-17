@@ -1,0 +1,70 @@
+[defaults]
+temperature = 0.5
+top_p = 0.9
+
+[storm_wiki.conv_simulator_lm]
+url = "https://api.siliconflow.cn/v1"
+key = "SILICONFLOW_API_KEY"
+model = "Pro/zai-org/GLM-5"
+max_tokens = 500
+
+[storm_wiki.question_asker_lm]
+url = "https://api.siliconflow.cn/v1"
+key = "SILICONFLOW_API_KEY"
+model = "Pro/zai-org/GLM-5"
+max_tokens = 500
+
+[storm_wiki.outline_gen_lm]
+url = "https://api.siliconflow.cn/v1"
+key = "SILICONFLOW_API_KEY"
+model = "Pro/zai-org/GLM-5"
+max_tokens = 400
+
+[storm_wiki.article_gen_lm]
+url = "https://api.siliconflow.cn/v1"
+key = "SILICONFLOW_API_KEY"
+model = "Pro/zai-org/GLM-5"
+max_tokens = 700
+
+[storm_wiki.article_polish_lm]
+url = "https://api.siliconflow.cn/v1"
+key = "SILICONFLOW_API_KEY"
+model = "Pro/zai-org/GLM-5"
+max_tokens = 4000
+
+# Co-STORM configurations
+[co_storm.question_answering_lm]
+url = "https://api.siliconflow.cn/v1"
+key = "SILICONFLOW_API_KEY"
+model = "Pro/zai-org/GLM-5"
+max_tokens = 1000
+
+[co_storm.discourse_manage_lm]
+url = "https://api.siliconflow.cn/v1"
+key = "SILICONFLOW_API_KEY"
+model = "Pro/zai-org/GLM-5"
+max_tokens = 500
+
+[co_storm.utterance_polishing_lm]
+url = "https://api.siliconflow.cn/v1"
+key = "SILICONFLOW_API_KEY"
+model = "Pro/zai-org/GLM-5"
+max_tokens = 2000
+
+[co_storm.warmstart_outline_gen_lm]
+url = "https://api.siliconflow.cn/v1"
+key = "SILICONFLOW_API_KEY"
+model = "Pro/zai-org/GLM-5"
+max_tokens = 500
+
+[co_storm.question_asking_lm]
+url = "https://api.siliconflow.cn/v1"
+key = "SILICONFLOW_API_KEY"
+model = "Pro/zai-org/GLM-5"
+max_tokens = 300
+
+[co_storm.knowledge_base_lm]
+url = "https://api.siliconflow.cn/v1"
+key = "SILICONFLOW_API_KEY"
+model = "Pro/zai-org/GLM-5"
+max_tokens = 1000

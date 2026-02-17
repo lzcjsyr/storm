@@ -20,6 +20,7 @@ args.output_dir/
 
 import os
 from argparse import ArgumentParser
+from pathlib import Path
 
 from dspy import Example
 
@@ -40,9 +41,11 @@ from knowledge_storm.rm import (
 )
 from knowledge_storm.utils import load_api_key
 
+DEFAULT_SECRETS_PATH = str(Path(__file__).resolve().parents[2] / "secrets.toml")
+
 
 def main(args):
-    load_api_key(toml_file_path="secrets.toml")
+    load_api_key(toml_file_path=DEFAULT_SECRETS_PATH)
     lm_configs = STORMWikiLMConfigs()
 
     mistral_kwargs = {

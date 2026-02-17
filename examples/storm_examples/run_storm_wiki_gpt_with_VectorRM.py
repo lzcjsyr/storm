@@ -29,6 +29,7 @@ args.output_dir/
 
 import os
 from argparse import ArgumentParser
+from pathlib import Path
 
 from knowledge_storm import (
     STORMWikiRunnerArguments,
@@ -39,16 +40,18 @@ from knowledge_storm.rm import VectorRM
 from knowledge_storm.lm import OpenAIModel
 from knowledge_storm.utils import load_api_key, QdrantVectorStoreManager
 
+DEFAULT_SECRETS_PATH = str(Path(__file__).resolve().parents[2] / "secrets.toml")
+
 
 def main(args):
     # Load API key from the specified toml file path
-    load_api_key(toml_file_path="secrets.toml")
+    load_api_key(toml_file_path=DEFAULT_SECRETS_PATH)
 
     # Initialize the language model configurations
     engine_lm_configs = STORMWikiLMConfigs()
     openai_kwargs = {
         "api_key": os.getenv("OPENAI_API_KEY"),
-        "temperature": 1.0,
+        "temperature": 0.5,
         "top_p": 0.9,
     }
 

@@ -133,6 +133,13 @@ rm = YouRM(ydc_api_key=os.getenv('YDC_API_KEY'), k=engine_args.search_top_k)
 runner = STORMWikiRunner(engine_args, lm_configs, rm)
 ```
 
+You can also initialize all STORM stage models from a single routing file:
+
+```python
+lm_configs = STORMWikiLMConfigs()
+lm_configs.init_from_toml(config_path=\"lm_routing.toml\", section=\"storm_wiki\")
+```
+
 The `STORMWikiRunner` instance can be evoked with the simple `run` method:
 ```python
 topic = input('Topic: ')
@@ -166,7 +173,7 @@ lm_config: CollaborativeStormLMConfigs = CollaborativeStormLMConfigs()
 openai_kwargs = {
     "api_key": os.getenv("OPENAI_API_KEY"),
     "api_provider": "openai",
-    "temperature": 1.0,
+    "temperature": 0.5,
     "top_p": 0.9,
     "api_base": None,
 } 
@@ -194,6 +201,13 @@ costorm_runner = CoStormRunner(lm_config=lm_config,
                                runner_argument=runner_argument,
                                logging_wrapper=logging_wrapper,
                                rm=bing_rm)
+```
+
+You can also initialize all Co-STORM stage models from the same routing file:
+
+```python
+lm_config = CollaborativeStormLMConfigs()
+lm_config.init_from_toml(config_path=\"lm_routing.toml\", section=\"co_storm\")
 ```
 
 The `CoStormRunner` instance can be evoked with the `warmstart()` and `step(...)` methods.
@@ -233,6 +247,23 @@ BING_SEARCH_API_KEY="your_bing_search_api_key" # if using bing search
 ENCODER_API_TYPE="openai" # if using openai encoder
 ```
 
+### Unified OpenAI-Compatible LM routing (recommended)
+
+You can now configure per-stage models in a single TOML file (`lm_routing.toml`) and route each stage to a different OpenAI-compatible endpoint.
+
+- `url`: provider base URL (for example SiliconFlow/Kimi/DeepSeek/OpenAI)
+- `key`: environment variable name for API key (for example `DEEPSEEK_API_KEY`)
+- `model`: model name to use for that stage
+
+Use [`examples/lm_routing.example.toml`](examples/lm_routing.example.toml) as a template.
+
+Common configuration errors:
+
+1. Missing stage section (for example `[storm_wiki.article_gen_lm]`).
+2. Missing required field in a stage (`url`, `key`, or `model`).
+3. `key` points to an environment variable that is not set.
+4. `url` does not point to the OpenAI-compatible `/v1` endpoint.
+
 ### STORM examples
 
 **To run STORM with `gpt` family models with default configurations:**
@@ -241,6 +272,7 @@ Run the following command.
 ```bash
 python examples/storm_examples/run_storm_wiki_gpt.py \
     --output-dir $OUTPUT_DIR \
+    --lm-config lm_routing.toml \
     --retriever bing \
     --do-research \
     --do-generate-outline \
@@ -260,6 +292,7 @@ To run Co-STORM with `gpt` family models with default configurations,
 ```bash
 python examples/costorm_examples/run_costorm_gpt.py \
     --output-dir $OUTPUT_DIR \
+    --lm-config lm_routing.toml \
     --retriever bing
 ```
 

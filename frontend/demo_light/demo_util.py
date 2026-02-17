@@ -592,7 +592,7 @@ def set_storm_runner():
             api_key=st.secrets["OPENAI_API_KEY"],
             api_provider="openai",
             max_tokens=500,
-            temperature=1.0,
+            temperature=0.5,
             top_p=0.9,
         )
     )

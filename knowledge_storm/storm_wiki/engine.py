@@ -17,6 +17,7 @@ from .modules.persona_generator import StormPersonaGenerator
 from .modules.storm_dataclass import StormInformationTable, StormArticle
 from ..interface import Engine, LMConfigs, Retriever
 from ..lm import LitellmModel
+from ..lm_routing import apply_lm_models_from_toml
 from ..utils import FileIOHelper, makeStringRed, truncate_filename
 
 
@@ -80,6 +81,14 @@ class STORMWikiLMConfigs(LMConfigs):
 
     def set_article_polish_lm(self, model: Union[dspy.dsp.LM, dspy.dsp.HFModel]):
         self.article_polish_lm = model
+
+    def init_from_toml(self, config_path: str, section: str = "storm_wiki"):
+        """Initialize STORMWiki LMs from an OpenAI-compatible routing TOML."""
+        apply_lm_models_from_toml(
+            config_obj=self,
+            config_path=config_path,
+            section=section,
+        )
 
 
 @dataclass

@@ -15,6 +15,7 @@ args.output_dir/
 import os
 import json
 from argparse import ArgumentParser
+from pathlib import Path
 from knowledge_storm.collaborative_storm.engine import (
     CollaborativeStormLMConfigs,
     RunnerArgument,
@@ -36,51 +37,57 @@ from knowledge_storm.rm import (
 )
 from knowledge_storm.utils import load_api_key
 
+DEFAULT_LM_CONFIG_PATH = str(Path(__file__).resolve().parents[2] / "lm_routing.toml")
+DEFAULT_SECRETS_PATH = str(Path(__file__).resolve().parents[2] / "secrets.toml")
+
 
 def main(args):
-    load_api_key(toml_file_path="secrets.toml")
+    load_api_key(toml_file_path=DEFAULT_SECRETS_PATH)
     lm_config: CollaborativeStormLMConfigs = CollaborativeStormLMConfigs()
-    openai_kwargs = {
-        "api_key": os.getenv("OPENAI_API_KEY"),
-        "api_provider": "openai",
-        "temperature": 1.0,
-        "top_p": 0.9,
-        "api_base": None,
-    }
+    if os.path.exists(args.lm_config):
+        lm_config.init_from_toml(config_path=args.lm_config, section="co_storm")
+    else:
+        openai_kwargs = {
+            "api_key": os.getenv("OPENAI_API_KEY"),
+            "api_provider": "openai",
+            "temperature": 0.5,
+            "top_p": 0.9,
+            "api_base": None,
+        }
 
-    ModelClass = OpenAIModel
-    gpt_4o_model_name = "gpt-4o"
+        ModelClass = OpenAIModel
+        gpt_4o_model_name = "gpt-4o"
 
-    # STORM is a LM system so different components can be powered by different models.
-    # For a good balance between cost and quality, you can choose a cheaper/faster model for conv_simulator_lm
-    # which is used to split queries, synthesize answers in the conversation. We recommend using stronger models
-    # for outline_gen_lm which is responsible for organizing the collected information, and article_gen_lm
-    # which is responsible for generating sections with citations.
-    question_answering_lm = ModelClass(
-        model=gpt_4o_model_name, max_tokens=1000, **openai_kwargs
-    )
-    discourse_manage_lm = ModelClass(
-        model=gpt_4o_model_name, max_tokens=500, **openai_kwargs
-    )
-    utterance_polishing_lm = ModelClass(
-        model=gpt_4o_model_name, max_tokens=2000, **openai_kwargs
-    )
-    warmstart_outline_gen_lm = ModelClass(
-        model=gpt_4o_model_name, max_tokens=500, **openai_kwargs
-    )
-    question_asking_lm = ModelClass(
-        model=gpt_4o_model_name, max_tokens=300, **openai_kwargs
-    )
-    knowledge_base_lm = ModelClass(
-        model=gpt_4o_model_name, max_tokens=1000, **openai_kwargs
-    )
+        # STORM is a LM system so different components can be powered by different models.
+        # For a good balance between cost and quality, you can choose a cheaper/faster model for conv_simulator_lm
+        # which is used to split queries, synthesize answers in the conversation. We recommend using stronger models
+        # for outline_gen_lm which is responsible for organizing the collected information, and article_gen_lm
+        # which is responsible for generating sections with citations.
+        question_answering_lm = ModelClass(
+            model=gpt_4o_model_name, max_tokens=1000, **openai_kwargs
+        )
+        discourse_manage_lm = ModelClass(
+            model=gpt_4o_model_name, max_tokens=500, **openai_kwargs
+        )
+        utterance_polishing_lm = ModelClass(
+            model=gpt_4o_model_name, max_tokens=2000, **openai_kwargs
+        )
+        warmstart_outline_gen_lm = ModelClass(
+            model=gpt_4o_model_name, max_tokens=500, **openai_kwargs
+        )
+        question_asking_lm = ModelClass(
+            model=gpt_4o_model_name, max_tokens=300, **openai_kwargs
+        )
+        knowledge_base_lm = ModelClass(
+            model=gpt_4o_model_name, max_tokens=1000, **openai_kwargs
+        )
 
-    lm_config.set_question_answering_lm(question_answering_lm)
-    lm_config.set_discourse_manage_lm(discourse_manage_lm)
-    lm_config.set_utterance_polishing_lm(utterance_polishing_lm)
-    lm_config.set_warmstart_outline_gen_lm(warmstart_outline_gen_lm)
-    lm_config.set_question_asking_lm(question_asking_lm)
-    lm_config.set_knowledge_base_lm(knowledge_base_lm)
+        lm_config.set_question_answering_lm(question_answering_lm)
+        lm_config.set_discourse_manage_lm(discourse_manage_lm)
+        lm_config.set_utterance_polishing_lm(utterance_polishing_lm)
+        lm_config.set_warmstart_outline_gen_lm(warmstart_outline_gen_lm)
+        lm_config.set_question_asking_lm(question_asking_lm)
+        lm_config.set_knowledge_base_lm(knowledge_base_lm)
 
     topic = input("Topic: ")
     runner_argument = RunnerArgument(
@@ -204,8 +211,15 @@ if __name__ == "__main__":
         help="Directory to store the outputs.",
     )
     parser.add_argument(
+        "--lm-config",
+        type=str,
+        default=DEFAULT_LM_CONFIG_PATH,
+        help="Path to LM routing TOML. If the file exists, it overrides hardcoded model setup.",
+    )
+    parser.add_argument(
         "--retriever",
         type=str,
+        default="tavily",
         choices=["bing", "you", "brave", "serper", "duckduckgo", "tavily", "searxng"],
         help="The search engine API to use for retrieving information.",
     )
