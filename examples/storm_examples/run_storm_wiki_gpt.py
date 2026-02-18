@@ -27,7 +27,6 @@ from knowledge_storm import (
     STORMWikiRunner,
     STORMWikiLMConfigs,
 )
-from knowledge_storm.lm import OpenAIModel
 from knowledge_storm.rm import (
     YouRM,
     BingSearch,
@@ -47,45 +46,7 @@ DEFAULT_SECRETS_PATH = str(Path(__file__).resolve().parents[2] / "secrets.toml")
 def main(args):
     load_api_key(toml_file_path=DEFAULT_SECRETS_PATH)
     lm_configs = STORMWikiLMConfigs()
-    if os.path.exists(args.lm_config):
-        lm_configs.init_from_toml(config_path=args.lm_config, section="storm_wiki")
-    else:
-        openai_kwargs = {
-            "api_key": os.getenv("OPENAI_API_KEY"),
-            "temperature": 0.5,
-            "top_p": 0.9,
-        }
-
-        ModelClass = OpenAIModel
-        gpt_35_model_name = "gpt-3.5-turbo"
-        gpt_4_model_name = "gpt-4o"
-
-        # STORM is a LM system so different components can be powered by different models.
-        # For a good balance between cost and quality, you can choose a cheaper/faster model for conv_simulator_lm
-        # which is used to split queries, synthesize answers in the conversation. We recommend using stronger models
-        # for outline_gen_lm which is responsible for organizing the collected information, and article_gen_lm
-        # which is responsible for generating sections with citations.
-        conv_simulator_lm = ModelClass(
-            model=gpt_35_model_name, max_tokens=500, **openai_kwargs
-        )
-        question_asker_lm = ModelClass(
-            model=gpt_35_model_name, max_tokens=500, **openai_kwargs
-        )
-        outline_gen_lm = ModelClass(
-            model=gpt_4_model_name, max_tokens=400, **openai_kwargs
-        )
-        article_gen_lm = ModelClass(
-            model=gpt_4_model_name, max_tokens=700, **openai_kwargs
-        )
-        article_polish_lm = ModelClass(
-            model=gpt_4_model_name, max_tokens=4000, **openai_kwargs
-        )
-
-        lm_configs.set_conv_simulator_lm(conv_simulator_lm)
-        lm_configs.set_question_asker_lm(question_asker_lm)
-        lm_configs.set_outline_gen_lm(outline_gen_lm)
-        lm_configs.set_article_gen_lm(article_gen_lm)
-        lm_configs.set_article_polish_lm(article_polish_lm)
+    lm_configs.init_from_toml(config_path=args.lm_config, section="storm_wiki")
 
     engine_args = STORMWikiRunnerArguments(
         output_dir=args.output_dir,
@@ -167,7 +128,7 @@ if __name__ == "__main__":
         "--lm-config",
         type=str,
         default=DEFAULT_LM_CONFIG_PATH,
-        help="Path to LM routing TOML. If the file exists, it overrides hardcoded model setup.",
+        help="Path to LM routing TOML (required).",
     )
     parser.add_argument(
         "--max-thread-num",

@@ -4,7 +4,7 @@ import json
 import logging
 import os
 from dataclasses import dataclass, field
-from typing import Union, Optional
+from typing import Union
 
 import dspy
 
@@ -16,8 +16,8 @@ from .modules.outline_generation import StormOutlineGenerationModule
 from .modules.persona_generator import StormPersonaGenerator
 from .modules.storm_dataclass import StormInformationTable, StormArticle
 from ..interface import Engine, LMConfigs, Retriever
-from ..lm import LitellmModel
 from ..lm_routing import apply_lm_models_from_toml
+from ..lm_routing_spec import SECTION_TO_ROLES
 from ..utils import FileIOHelper, makeStringRed, truncate_filename
 
 
@@ -30,42 +30,8 @@ class STORMWikiLMConfigs(LMConfigs):
     """
 
     def __init__(self):
-        self.conv_simulator_lm = (
-            None  # LLM used in conversation simulator except for question asking.
-        )
-        self.question_asker_lm = None  # LLM used in question asking.
-        self.outline_gen_lm = None  # LLM used in outline generation.
-        self.article_gen_lm = None  # LLM used in article generation.
-        self.article_polish_lm = None  # LLM used in article polishing.
-
-    def init_openai_model(
-        self,
-        openai_api_key: str,
-        temperature: Optional[float] = 1.0,
-        top_p: Optional[float] = 0.9,
-    ):
-        """Legacy: Corresponding to the original setup in the NAACL'24 paper."""
-        openai_kwargs = {
-            "api_key": openai_api_key,
-            "temperature": temperature,
-            "top_p": top_p,
-            "api_base": None,
-        }
-        self.conv_simulator_lm = LitellmModel(
-            model="gpt-4o-mini-2024-07-18", max_tokens=500, **openai_kwargs
-        )
-        self.question_asker_lm = LitellmModel(
-            model="gpt-4o-mini-2024-07-18", max_tokens=500, **openai_kwargs
-        )
-        self.outline_gen_lm = LitellmModel(
-            model="gpt-4-0125-preview", max_tokens=400, **openai_kwargs
-        )
-        self.article_gen_lm = LitellmModel(
-            model="gpt-4o-2024-05-13", max_tokens=700, **openai_kwargs
-        )
-        self.article_polish_lm = LitellmModel(
-            model="gpt-4o-2024-05-13", max_tokens=4000, **openai_kwargs
-        )
+        for role in SECTION_TO_ROLES["storm_wiki"]:
+            setattr(self, role, None)
 
     def set_conv_simulator_lm(self, model: Union[dspy.dsp.LM, dspy.dsp.HFModel]):
         self.conv_simulator_lm = model

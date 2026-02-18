@@ -1,5 +1,6 @@
 import importlib.util
 import os
+import sys
 import tempfile
 import types
 import unittest
@@ -18,10 +19,28 @@ class FakeLitellmModel:
 class TestLMRouting(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        module_path = Path(__file__).resolve().parents[1] / "knowledge_storm" / "lm_routing.py"
-        spec = importlib.util.spec_from_file_location("lm_routing_under_test", module_path)
-        cls.lm_routing = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(cls.lm_routing)
+        repo_root = Path(__file__).resolve().parents[1]
+        package_root = repo_root / "knowledge_storm"
+
+        pkg = types.ModuleType("knowledge_storm")
+        pkg.__path__ = [str(package_root)]
+        sys.modules["knowledge_storm"] = pkg
+
+        spec_module_path = package_root / "lm_routing_spec.py"
+        spec_spec = importlib.util.spec_from_file_location(
+            "knowledge_storm.lm_routing_spec", spec_module_path
+        )
+        spec_module = importlib.util.module_from_spec(spec_spec)
+        sys.modules["knowledge_storm.lm_routing_spec"] = spec_module
+        spec_spec.loader.exec_module(spec_module)
+
+        routing_module_path = package_root / "lm_routing.py"
+        routing_spec = importlib.util.spec_from_file_location(
+            "knowledge_storm.lm_routing", routing_module_path
+        )
+        cls.lm_routing = importlib.util.module_from_spec(routing_spec)
+        sys.modules["knowledge_storm.lm_routing"] = cls.lm_routing
+        routing_spec.loader.exec_module(cls.lm_routing)
 
     def setUp(self):
         self._original_env = {
@@ -256,6 +275,37 @@ class TestLMRouting(unittest.TestCase):
             )
         finally:
             os.remove(config_path)
+
+    def test_extra_kwargs_are_passed_to_model(self):
+        config = self._base_config()
+        config["storm_wiki"]["outline_gen_lm"]["response_format"] = {
+            "type": "json_schema"
+        }
+        config_path = self._write_config(config)
+        try:
+            with patch.object(
+                self.lm_routing,
+                "_create_litellm_model",
+                side_effect=lambda **kwargs: FakeLitellmModel(**kwargs),
+            ):
+                role_to_model = self.lm_routing.build_lm_models_from_toml(
+                    config_path=config_path,
+                    section="storm_wiki",
+                )
+            self.assertEqual(
+                role_to_model["outline_gen_lm"].kwargs["response_format"],
+                {"type": "json_schema"},
+            )
+        finally:
+            os.remove(config_path)
+
+    def test_missing_file_raises(self):
+        with self.assertRaises(FileNotFoundError) as ctx:
+            self.lm_routing.build_lm_models_from_toml(
+                config_path="/tmp/does-not-exist-lm-routing.toml",
+                section="storm_wiki",
+            )
+        self.assertIn("LM routing config file not found", str(ctx.exception))
 
 
 if __name__ == "__main__":

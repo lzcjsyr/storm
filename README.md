@@ -103,41 +103,20 @@ Both STORM and Co-STORM are working in the information curation layer, you need 
 
 ### STORM
 
-The STORM knowledge curation engine is defined as a simple Python `STORMWikiRunner` class. Here is an example of using You.com search engine and OpenAI models.
+The STORM knowledge curation engine is defined as a simple Python `STORMWikiRunner` class.
+Initialize stage models from `lm_routing.toml` and then wire your retriever.
 
 ```python
 import os
 from knowledge_storm import STORMWikiRunnerArguments, STORMWikiRunner, STORMWikiLMConfigs
-from knowledge_storm.lm import LitellmModel
 from knowledge_storm.rm import YouRM
 
 lm_configs = STORMWikiLMConfigs()
-openai_kwargs = {
-    'api_key': os.getenv("OPENAI_API_KEY"),
-    'temperature': 1.0,
-    'top_p': 0.9,
-}
-# STORM is a LM system so different components can be powered by different models to reach a good balance between cost and quality.
-# For a good practice, choose a cheaper/faster model for `conv_simulator_lm` which is used to split queries, synthesize answers in the conversation.
-# Choose a more powerful model for `article_gen_lm` to generate verifiable text with citations.
-gpt_35 = LitellmModel(model='gpt-3.5-turbo', max_tokens=500, **openai_kwargs)
-gpt_4 = LitellmModel(model='gpt-4o', max_tokens=3000, **openai_kwargs)
-lm_configs.set_conv_simulator_lm(gpt_35)
-lm_configs.set_question_asker_lm(gpt_35)
-lm_configs.set_outline_gen_lm(gpt_4)
-lm_configs.set_article_gen_lm(gpt_4)
-lm_configs.set_article_polish_lm(gpt_4)
+lm_configs.init_from_toml(config_path="lm_routing.toml", section="storm_wiki")
 # Check out the STORMWikiRunnerArguments class for more configurations.
 engine_args = STORMWikiRunnerArguments(...)
 rm = YouRM(ydc_api_key=os.getenv('YDC_API_KEY'), k=engine_args.search_top_k)
 runner = STORMWikiRunner(engine_args, lm_configs, rm)
-```
-
-You can also initialize all STORM stage models from a single routing file:
-
-```python
-lm_configs = STORMWikiLMConfigs()
-lm_configs.init_from_toml(config_path=\"lm_routing.toml\", section=\"storm_wiki\")
 ```
 
 The `STORMWikiRunner` instance can be evoked with the simple `run` method:
@@ -160,36 +139,17 @@ runner.summary()
 
 ### Co-STORM
 
-The Co-STORM knowledge curation engine is defined as a simple Python `CoStormRunner` class. Here is an example of using Bing search engine and OpenAI models.
+The Co-STORM knowledge curation engine is defined as a simple Python `CoStormRunner` class.
+Initialize stage models from the same routing file and then build the runner.
 
 ```python
+import os
 from knowledge_storm.collaborative_storm.engine import CollaborativeStormLMConfigs, RunnerArgument, CoStormRunner
-from knowledge_storm.lm import LitellmModel
 from knowledge_storm.logging_wrapper import LoggingWrapper
 from knowledge_storm.rm import BingSearch
 
-# Co-STORM adopts the same multi LM system paradigm as STORM 
 lm_config: CollaborativeStormLMConfigs = CollaborativeStormLMConfigs()
-openai_kwargs = {
-    "api_key": os.getenv("OPENAI_API_KEY"),
-    "api_provider": "openai",
-    "temperature": 0.5,
-    "top_p": 0.9,
-    "api_base": None,
-} 
-question_answering_lm = LitellmModel(model=gpt_4o_model_name, max_tokens=1000, **openai_kwargs)
-discourse_manage_lm = LitellmModel(model=gpt_4o_model_name, max_tokens=500, **openai_kwargs)
-utterance_polishing_lm = LitellmModel(model=gpt_4o_model_name, max_tokens=2000, **openai_kwargs)
-warmstart_outline_gen_lm = LitellmModel(model=gpt_4o_model_name, max_tokens=500, **openai_kwargs)
-question_asking_lm = LitellmModel(model=gpt_4o_model_name, max_tokens=300, **openai_kwargs)
-knowledge_base_lm = LitellmModel(model=gpt_4o_model_name, max_tokens=1000, **openai_kwargs)
-
-lm_config.set_question_answering_lm(question_answering_lm)
-lm_config.set_discourse_manage_lm(discourse_manage_lm)
-lm_config.set_utterance_polishing_lm(utterance_polishing_lm)
-lm_config.set_warmstart_outline_gen_lm(warmstart_outline_gen_lm)
-lm_config.set_question_asking_lm(question_asking_lm)
-lm_config.set_knowledge_base_lm(knowledge_base_lm)
+lm_config.init_from_toml(config_path="lm_routing.toml", section="co_storm")
 
 # Check out the Co-STORM's RunnerArguments class for more configurations.
 topic = input('Topic: ')
@@ -201,13 +161,6 @@ costorm_runner = CoStormRunner(lm_config=lm_config,
                                runner_argument=runner_argument,
                                logging_wrapper=logging_wrapper,
                                rm=bing_rm)
-```
-
-You can also initialize all Co-STORM stage models from the same routing file:
-
-```python
-lm_config = CollaborativeStormLMConfigs()
-lm_config.init_from_toml(config_path=\"lm_routing.toml\", section=\"co_storm\")
 ```
 
 The `CoStormRunner` instance can be evoked with the `warmstart()` and `step(...)` methods.

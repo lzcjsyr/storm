@@ -29,7 +29,7 @@ from knowledge_storm import (
     STORMWikiRunner,
     STORMWikiLMConfigs,
 )
-from knowledge_storm.lm import VLLMClient
+from knowledge_storm.lm import LitellmModel
 from knowledge_storm.rm import (
     YouRM,
     BingSearch,
@@ -44,24 +44,40 @@ from knowledge_storm.utils import load_api_key
 DEFAULT_SECRETS_PATH = str(Path(__file__).resolve().parents[2] / "secrets.toml")
 
 
+def _normalize_openai_compatible_model(model_name: str) -> str:
+    return model_name if model_name.startswith("openai/") else f"openai/{model_name}"
+
+
 def main(args):
     load_api_key(toml_file_path=DEFAULT_SECRETS_PATH)
     lm_configs = STORMWikiLMConfigs()
 
-    mistral_kwargs = {
-        "model": "mistralai/Mistral-7B-Instruct-v0.2",
-        "port": args.port,
-        "url": args.url,
+    openai_compatible_kwargs = {
+        "api_key": args.api_key,
+        "api_base": f"{args.url}:{args.port}/v1",
+        "temperature": 0.5,
+        "top_p": 0.9,
         "stop": (
             "\n\n---",
         ),  # dspy uses "\n\n---" to separate examples. Open models sometimes generate this.
     }
+    model_name = _normalize_openai_compatible_model(args.model)
 
-    conv_simulator_lm = VLLMClient(max_tokens=500, **mistral_kwargs)
-    question_asker_lm = VLLMClient(max_tokens=500, **mistral_kwargs)
-    outline_gen_lm = VLLMClient(max_tokens=400, **mistral_kwargs)
-    article_gen_lm = VLLMClient(max_tokens=700, **mistral_kwargs)
-    article_polish_lm = VLLMClient(max_tokens=4000, **mistral_kwargs)
+    conv_simulator_lm = LitellmModel(
+        model=model_name, max_tokens=500, **openai_compatible_kwargs
+    )
+    question_asker_lm = LitellmModel(
+        model=model_name, max_tokens=500, **openai_compatible_kwargs
+    )
+    outline_gen_lm = LitellmModel(
+        model=model_name, max_tokens=400, **openai_compatible_kwargs
+    )
+    article_gen_lm = LitellmModel(
+        model=model_name, max_tokens=700, **openai_compatible_kwargs
+    )
+    article_polish_lm = LitellmModel(
+        model=model_name, max_tokens=4000, **openai_compatible_kwargs
+    )
 
     lm_configs.set_conv_simulator_lm(conv_simulator_lm)
     lm_configs.set_question_asker_lm(question_asker_lm)
@@ -195,6 +211,18 @@ def main(args):
 if __name__ == "__main__":
     parser = ArgumentParser()
     # global arguments
+    parser.add_argument(
+        "--model",
+        type=str,
+        default="mistralai/Mistral-7B-Instruct-v0.2",
+        help="Model name exposed by the OpenAI-compatible vLLM endpoint.",
+    )
+    parser.add_argument(
+        "--api-key",
+        type=str,
+        default="null",
+        help="API key for the OpenAI-compatible endpoint. Keep as 'null' if auth is disabled.",
+    )
     parser.add_argument(
         "--url", type=str, default="http://localhost", help="URL of the VLLM server."
     )

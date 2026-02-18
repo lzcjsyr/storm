@@ -37,7 +37,7 @@ from knowledge_storm import (
     STORMWikiLMConfigs,
 )
 from knowledge_storm.rm import VectorRM
-from knowledge_storm.lm import OpenAIModel
+from knowledge_storm.lm import LitellmModel
 from knowledge_storm.utils import load_api_key, QdrantVectorStoreManager
 
 DEFAULT_SECRETS_PATH = str(Path(__file__).resolve().parents[2] / "secrets.toml")
@@ -55,7 +55,7 @@ def main(args):
         "top_p": 0.9,
     }
 
-    ModelClass = OpenAIModel
+    ModelClass = LitellmModel
     gpt_35_model_name = "gpt-3.5-turbo"
     gpt_4_model_name = "gpt-4o"
 

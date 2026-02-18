@@ -67,3 +67,10 @@ url = "https://api.deepseek.com/v1"
 key = "DEEPSEEK_API_KEY"
 model = "deepseek-chat"
 max_tokens = 1000
+
+# Optional: OpenAI-compatible vLLM endpoint example
+# [storm_wiki.conv_simulator_lm]
+# url = "http://localhost:8000/v1"
+# key = "VLLM_API_KEY"
+# model = "openai/mistralai/Mistral-7B-Instruct-v0.2"
+# max_tokens = 500

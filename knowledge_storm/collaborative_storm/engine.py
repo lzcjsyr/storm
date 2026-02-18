@@ -1,9 +1,8 @@
 # File role: Core Co-STORM runner and discourse manager.
 # Relation: Coordinates warm start, turn policy, multi-agent speaking order, and report generation.
 import dspy
-import os
 from dataclasses import dataclass, field, asdict
-from typing import List, Union, Literal, Optional, Dict
+from typing import List, Union, Optional, Dict
 
 from .modules import collaborative_storm_utils as collaborative_storm_utils
 from .modules.callback import BaseCallbackHandler
@@ -21,6 +20,7 @@ from ..interface import LMConfigs, Agent
 from ..logging_wrapper import LoggingWrapper
 from ..lm import LitellmModel
 from ..lm_routing import apply_lm_models_from_toml
+from ..lm_routing_spec import SECTION_TO_ROLES
 from ..rm import BingSearch
 
 
@@ -33,90 +33,8 @@ class CollaborativeStormLMConfigs(LMConfigs):
     """
 
     def __init__(self):
-        self.question_answering_lm = None
-        self.discourse_manage_lm = None
-        self.utterance_polishing_lm = None
-        self.warmstart_outline_gen_lm = None
-        self.question_asking_lm = None
-        self.knowledge_base_lm = None
-
-    def init(
-        self,
-        lm_type: Literal["openai", "together"],
-        temperature: Optional[float] = 1.0,
-        top_p: Optional[float] = 0.9,
-    ):
-        if lm_type and lm_type == "openai":
-            openai_kwargs = {
-                "api_key": os.getenv("OPENAI_API_KEY"),
-                "temperature": temperature,
-                "top_p": top_p,
-                "api_base": None,
-            }
-            self.question_answering_lm = LitellmModel(
-                model="gpt-4o-2024-05-13", max_tokens=1000, **openai_kwargs
-            )
-            self.discourse_manage_lm = LitellmModel(
-                model="gpt-4o-2024-05-13", max_tokens=500, **openai_kwargs
-            )
-            self.utterance_polishing_lm = LitellmModel(
-                model="gpt-4o-2024-05-13", max_tokens=2000, **openai_kwargs
-            )
-            self.warmstart_outline_gen_lm = LitellmModel(
-                model="gpt-4-1106-preview", max_tokens=500, **openai_kwargs
-            )
-            self.question_asking_lm = LitellmModel(
-                model="gpt-4o-2024-05-13", max_tokens=300, **openai_kwargs
-            )
-            self.knowledge_base_lm = LitellmModel(
-                model="gpt-4o-2024-05-13", max_tokens=1000, **openai_kwargs
-            )
-        elif lm_type and lm_type == "together":
-            together_kwargs = {
-                "api_key": os.getenv("TOGETHER_API_KEY"),
-                "temperature": temperature,
-                "top_p": top_p,
-            }
-            self.question_answering_lm = LitellmModel(
-                model="together_ai/meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
-                max_tokens=1000,
-                model_type="chat",
-                **together_kwargs,
-            )
-            self.discourse_manage_lm = LitellmModel(
-                model="together_ai/meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
-                max_tokens=500,
-                model_type="chat",
-                **together_kwargs,
-            )
-            self.utterance_polishing_lm = LitellmModel(
-                model="together_ai/meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
-                max_tokens=2000,
-                model_type="chat",
-                **together_kwargs,
-            )
-            self.warmstart_outline_gen_lm = LitellmModel(
-                model="together_ai/meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
-                max_tokens=500,
-                model_type="chat",
-                **together_kwargs,
-            )
-            self.question_asking_lm = LitellmModel(
-                model="together_ai/meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
-                max_tokens=300,
-                model_type="chat",
-                **together_kwargs,
-            )
-            self.knowledge_base_lm = LitellmModel(
-                model="together_ai/meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
-                max_tokens=1000,
-                model_type="chat",
-                **together_kwargs,
-            )
-        else:
-            raise Exception(
-                "No valid LM provider is provided. Supported values are 'openai' and 'together'."
-            )
+        for role in SECTION_TO_ROLES["co_storm"]:
+            setattr(self, role, None)
 
     def set_question_answering_lm(self, model: Union[dspy.dsp.LM, dspy.dsp.HFModel]):
         self.question_answering_lm = model
@@ -166,9 +84,61 @@ class CollaborativeStormLMConfigs(LMConfigs):
             dict: The dictionary representation of the CollaborativeStormLMConfigs.
         """
         config_dict = {}
-        for attr_name in self.__dict__:
-            config_dict[attr_name] = getattr(self, attr_name).kwargs
+        for attr_name in SECTION_TO_ROLES["co_storm"]:
+            lm = getattr(self, attr_name)
+            if lm is None:
+                raise ValueError(f"Language model for '{attr_name}' is not initialized.")
+            if not hasattr(lm, "model") or not hasattr(lm, "kwargs"):
+                raise ValueError(
+                    f"Language model for '{attr_name}' is not serializable as LitellmModel."
+                )
+            config_dict[attr_name] = {
+                "model": lm.model,
+                "model_type": getattr(lm, "model_type", "chat"),
+                **lm.kwargs,
+            }
         return config_dict
+
+    @classmethod
+    def from_dict(cls, data):
+        if not isinstance(data, dict):
+            raise ValueError("Field 'lm_config' must be a dictionary.")
+
+        missing_roles = [
+            role for role in SECTION_TO_ROLES["co_storm"] if role not in data
+        ]
+        if missing_roles:
+            missing = ", ".join(missing_roles)
+            raise ValueError(
+                f"Cannot restore lm_config. Missing role definitions: {missing}."
+            )
+
+        config = cls()
+        for role in SECTION_TO_ROLES["co_storm"]:
+            role_config = data[role]
+            if not isinstance(role_config, dict):
+                raise ValueError(
+                    f"Cannot restore lm_config. Role '{role}' must map to a dictionary."
+                )
+            if "model" not in role_config:
+                raise ValueError(
+                    f"Cannot restore lm_config. Role '{role}' is missing required field 'model'."
+                )
+
+            model = role_config["model"]
+            model_type = role_config.get("model_type", "chat")
+            kwargs = {
+                key: value
+                for key, value in role_config.items()
+                if key not in {"model", "model_type"}
+            }
+            setattr(
+                config,
+                role,
+                LitellmModel(model=model, model_type=model_type, **kwargs),
+            )
+
+        return config
 
 
 @dataclass
@@ -538,9 +508,7 @@ class CoStormRunner:
 
     @classmethod
     def from_dict(cls, data, callback_handler: BaseCallbackHandler = None):
-        # FIXME: does not use the lm_config data but naively use default setting
-        lm_config = CollaborativeStormLMConfigs()
-        lm_config.init(lm_type=os.getenv("LM_TYPE", "openai"))
+        lm_config = CollaborativeStormLMConfigs.from_dict(data.get("lm_config"))
         costorm_runner = cls(
             lm_config=lm_config,
             runner_argument=RunnerArgument.from_dict(data["runner_argument"]),
